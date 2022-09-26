@@ -51,7 +51,7 @@ function FadingCircle(x, y, r, dy) {
 }
 var CircleArray = []
 function addCircle(Carr) {
-    let radius = getRandomArbitrary(7, 35);
+    let radius = getRandomArbitrary(7, 32);
     let x = Math.random() * (canvas.width - 2 * radius) + radius;
     let dy = getRandomArbitrary(0.25, 0.75);
     Carr.push(new FadingCircle(x, -50, radius, dy));

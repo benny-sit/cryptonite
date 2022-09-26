@@ -207,9 +207,7 @@ function append_coins(coins) {
             </div>
         </div>
     </div>`)
-    })
-    $cg.children().get().forEach((elem) => {
-        coinObserver.observe(elem.children[0]);
+        coinObserver.observe($cg.children().get(-1).children[0]);
     })
 }
 
