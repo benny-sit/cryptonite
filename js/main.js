@@ -278,7 +278,7 @@ $(() => {
     })
 
     if ($(window).width() > 992) {
-        $('.top-image').css({'min-height': $(window).height() - $('#myNav').height() -10,});
+        $('.top-image').css({'min-height': $(window).height() - $('#myNav').height() - 10,});
     }
 
     $('#scroll-down').click(() => {
@@ -295,7 +295,6 @@ $(() => {
 
 $(window).resize(() => {
     $('.top-image').css({'min-height': $(window).height() - $('#myNav').height() -10,});
-    $('.top-text .for-text').css('width', $('.top-text h1').last().width() + 30);
 });
 $(window).scroll(() => {
     let scroll = $(window).scrollTop();
