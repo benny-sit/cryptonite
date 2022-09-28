@@ -9,8 +9,6 @@ body {
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
-
-  min-height: 90vh;
 }
 
 .top-image::before {
@@ -28,12 +26,15 @@ body {
 }
 
 @media (max-width: 992px) {
-  .top-image {
-    min-height: 100vh;
-  }
   .sticky-container {
     padding-right: 0px;
   }
+  
+}
+
+#myChart {
+  width: 100%;
+  height: 558px !important;   
 }
 
 .top-wrapper {
@@ -198,6 +199,7 @@ body {
   transform: translateY(-18px);
 }
 
+
 #coins-grid .card {
   transition: all 0.5s;
   opacity: 0.5;
@@ -213,6 +215,58 @@ body {
   opacity: 0.9 !important;
   scale: 0.95 !important;
 }
+
+.about-text-main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.about-text-main h1{
+  position: relative;
+  opacity: 0.5;
+  transition: 1s ease-out !important;
+  filter: drop-shadow(0 0 15px #A7CBFD);
+}
+
+#pills-about .about-card{
+  position: relative;
+  opacity: 0.5;
+  transform: translateY(30%);
+  transition: 0.7s ease-out;
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.2);
+}
+
+#pills-about .about-card:hover{
+  box-shadow: 0 0 10px 2px rgba(0, 0, 0, 0.3);
+}
+
+.about-text-main h1:first-child {
+  transform: translateX(50%);
+}
+.about-text-main h1:nth-child(2) {
+  transform: translateX(-50%);
+}
+.about-text-main h1:last-child {
+  transform: translateX(80%);
+}
+
+.transform-zero {
+  transform: translateX(0%) translateY(0%) !important;
+  opacity: 1 !important;
+}
+
+.light-box-shadow {
+  box-shadow: 0 0 7px 1px rgba(0, 0, 0, 0.1);
+}
+
+.blue-light-bg {
+  background-color: rgba(225, 237, 255, 0.5);
+}
+
+/* CSS FROM INTERNET */
+
 
 /* SWITCH */
 /* The switch - the box around the slider */

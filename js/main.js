@@ -1,10 +1,99 @@
 const coingecko = 'https://api.coingecko.com/api/v3/'
+const cryptocompare = 'https://min-api.cryptocompare.com/data/'
 const top100coins = JSON.parse(localStorage.getItem('top100coins'))
 const selectedcoins = new Set()
+var selectedSymbols = new Set(['XRP', 'ETH', 'BTC'])
 const allCoins = JSON.parse(localStorage.getItem('allCoins'))
 const TIMEOUT = 120000
 var pageNum = 1
 var search = []
+
+const colorPalette = [
+    '#F0D237',
+    '#F78B6D',
+    '#FA6672',
+    '#32DBA2',
+    '#B096E0',
+]
+
+var graphData = [{
+    label: 'BTC',
+    data: [],
+    fill: false,
+    borderColor: '#F0D237',
+    tension: 0.2,
+  },
+]
+var timeData = []
+
+
+const ctx = document.getElementById('myChart').getContext('2d');
+const myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: timeData,
+        datasets: graphData
+    },
+    options: {
+        maintainAspectRatio: false,
+        animation: false,
+        responsive: true,
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: 'Time (2s intervals)'
+                },
+                ticks: {
+                    autoSkip: true,
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: 'USD'
+                },
+            },
+        },
+        plugins: {
+            title: {
+                display: true,
+                text: 'Crypto Chart',
+                font: {
+                    size: 16
+                }
+            },
+
+        }
+    }
+});
+
+var addChartData = setInterval(() => {
+    if (selectedSymbols.size > 0) {
+        $.ajax({
+            url: cryptocompare + `pricemulti?fsyms=${Array.from(selectedSymbols).join(',')}&tsyms=USD`,
+            type: 'GET',
+            success: (res) => {
+                if (timeData.length > 14) {
+                    timeData.shift();
+                    graphData.map((c) => c.data.shift());
+                }
+                timeData.push(new Date().toLocaleTimeString().split(' ')[0]);
+                graphData.map((c) => {
+                    c.data.push(Object.values(res[c.label])[0])
+                });
+                myChart.update();
+            },
+            error: (err) => { 
+                console.log(err); 
+                $('#spinner-graph').removeClass('invisible');
+            }
+        })
+    } else {
+        myChart.update();
+    }
+
+}, 2000);
 
 const pageObserver = new IntersectionObserver((entries) => {
     const lastCoin = entries[0];
@@ -21,16 +110,34 @@ const pageObserver = new IntersectionObserver((entries) => {
     rootMargin: "400px",
 });
 
-const coinObserver = new IntersectionObserver((enteries) => {
-    enteries.forEach((entry => {
-        if (entry.boundingClientRect.y < 0) {
-            entry.target.classList.add('line-up');
-        }
+const coinObserver = new IntersectionObserver((entries) => {
+    $(entries[0].target).parent().prevAll().slice(0, 100).each((idx, elem) => {
+        elem.children[0].classList.toggle('line-up', true);
+        coinObserver.unobserve(elem.children[0]);
+    });
+    entries.forEach((entry => {
         entry.target.classList.toggle('line-up', entry.isIntersecting);
         if (entry.isIntersecting) {coinObserver.unobserve(entry.target)}
-    }))
+    }));
 },{
-    threshold: 0.7,
+    threshold: 0,
+    rootMargin: '0px',
+})
+
+const aboutObserver = new IntersectionObserver((entries) => {
+    console.log(entries);
+    entries.forEach((entry) => {
+        if(entry.isIntersecting) {
+            console.log('Intersection')
+            Array.from(entry.target.children).forEach((child) => {
+                child.classList.toggle('transform-zero', true);
+            })
+            coinObserver.unobserve(entry.target);
+        }
+    })
+}, {
+    threshold: 0, 
+    rootMargin: '0px'
 })
 
 if (!allCoins?.time || allCoins?.time - Date.now() > TIMEOUT) {
@@ -42,6 +149,21 @@ if (!allCoins?.time || allCoins?.time - Date.now() > TIMEOUT) {
         },
         error: (e) => console.log(e)
     })
+}
+
+function changeGraphCoins(symbols) {
+    graphData.splice(0, graphData.length);
+    timeData.splice(0, timeData.length);
+
+    symbols.map((sym, idx) => [
+        graphData.push({
+            label: sym,
+            data: [],
+            fill: false,
+            borderColor: colorPalette[idx],
+            tension: 0.2,
+        })
+    ])
 }
 
 function loadfirst() {
@@ -83,6 +205,7 @@ function appendPage(pageNumber) {
         type: 'GET',
         success: (res) => {
             if (res.length) {
+                console.log(pageNum)
                 append_coins(res);
                 pageNum++;
                 pageObserver.observe(document.querySelector("#coins-grid > [class^='col']:last-child"));
@@ -145,11 +268,21 @@ function showMoreInfo(btnObj, theInfo) {
     );
 }
 
+function updateSymbols() {
+    selectedSymbols = new Set();
+    for(let c of selectedcoins) {
+        let thisCoin = allCoins.coins.filter(coin => c === coin.id)[0];
+        selectedSymbols.add(thisCoin.symbol.toUpperCase());
+    }
+    changeGraphCoins([...selectedSymbols]);
+}
+
 function handle_selectedcoins(btnObj) {
     if (btnObj.checked) {
         if (selectedcoins.size < 5){
-            changeSelectedCard(btnObj);
+            toggleSelectedCard(btnObj);
             selectedcoins.add(btnObj.value);
+            updateSymbols(); // UpdateSymbols
         } else {
             btnObj.checked = false
             $('#selected-coins-modal').html(Array.from(selectedcoins).map((c) => 
@@ -161,13 +294,13 @@ function handle_selectedcoins(btnObj) {
             $('#deselect-modal').modal('show');
         }
     } else {
-        changeSelectedCard(btnObj);
+        toggleSelectedCard(btnObj);
         selectedcoins.delete(btnObj.value);
+        updateSymbols();
     }
-    console.log(selectedcoins, btnObj.checked);
 }
 
-function changeSelectedCard(btnObj) {
+function toggleSelectedCard(btnObj) {
     const cardParent = btnObj.parentNode.parentNode.parentNode.parentNode;
     cardParent.classList.toggle('bg-light');
     cardParent.classList.toggle('selected');
@@ -176,11 +309,12 @@ function changeSelectedCard(btnObj) {
 function deleteSelectedCoin(btnObj) {
     const [delCoin, addCoin] = btnObj.value.split(',');
     $('#select-' + delCoin).prop('checked', false);
-    changeSelectedCard($('#select-' + delCoin).get(0));
+    toggleSelectedCard($('#select-' + delCoin).get(0));
     selectedcoins.delete(delCoin);
     $('#select-' + addCoin).prop('checked', true).addClass('selected').addClass('bg-light');
-    changeSelectedCard($('#select-' + addCoin).get(0));
+    toggleSelectedCard($('#select-' + addCoin).get(0));
     selectedcoins.add(addCoin);
+    updateSymbols();
     $('#deselect-modal').modal('hide');
 }
 
@@ -201,7 +335,7 @@ function append_coins(coins) {
                     ${coin.name}
                 </div>
                 <button value="${coin.id}" onClick="coin_info(this);" class="btn btn-primary mb-2" type="button" data-bs-toggle="collapse" data-bs-target="#info-${coin.id}" aria-expanded="false" aria-controls="info-${coin.id}" >More info</button>
-                <div class="collapse bg-light rounded-3 border-bottom" id="info-${coin.id}">
+                <div class="collapse p-2 light-box-shadow blue-light-bg" id="info-${coin.id}">
                     <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
                 </div>
             </div>
@@ -269,6 +403,8 @@ $(() => {
     })
     $('#search-input').change(() => {
         if($('#search-input').val() === '') {
+            coinObserver.disconnect();
+            pageObserver.disconnect();
             search = [];
             loadfirst();
             return;
@@ -277,6 +413,8 @@ $(() => {
 
     if ($(window).width() > 992) {
         $('.top-image').css({'min-height': $(window).height() - $('#myNav').height() - 10,});
+    } else {
+        $('.top-image').css({'min-height': $(window).height(),});
     }
 
     $('#scroll-down').click(() => {
@@ -289,10 +427,21 @@ $(() => {
     $('#pills-profile-tab, #pills-about-tab').click(invisible_search);
     $('#pills-coins-tab').click(() => $('#search-form').removeClass('invisible'));
 
+    aboutObserver.observe($('.about-text-main').get(0))
+
+    $('#pills-about .row').each((idx, elem) => {
+        console.log(elem.children[0].children[0]);
+        aboutObserver.observe(elem.children[0]);
+    })
+
 })
 
 $(window).resize(() => {
-    $('.top-image').css({'min-height': $(window).height() - $('#myNav').height() -10,});
+    if ($(window).width() > 992) {
+        $('.top-image').css({'min-height': $(window).height() - $('#myNav').height() - 10,});
+    } else {
+        $('.top-image').css({'min-height': $(window).height(),});
+    }
 });
 $(window).scroll(() => {
     let scroll = $(window).scrollTop();

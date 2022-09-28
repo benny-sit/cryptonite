@@ -59,7 +59,7 @@ function addCircle(Carr) {
 
 function init() {
     CircleArray = [];
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < 10; i++) {
         addCircle(CircleArray);
     }
 }
@@ -79,18 +79,14 @@ var circleProducer = setInterval(() => {
 
 window.addEventListener("resize", (e) => {
     canvas.width= $('#main-content').width();
-    for (var i = 0; i < 10 ; i++) {
+    for (var i = 0; i < 5 ; i++) {
         addCircle(CircleArray);
     }
+    clearInterval(circleProducer);
     if (window.innerWidth < 992) {
-        clearInterval(circleProducer);
-        ProduceSpeed = 600;
-        circleProducer = setInterval(() => {
-            addCircle(CircleArray);
-        }, ProduceSpeed);
+        canvas.style.display = 'none';
     } else {
-        clearInterval(circleProducer);
-        ProduceSpeed = 400;
+        canvas.style.display = 'block';
         circleProducer = setInterval(() => {
             addCircle(CircleArray);
         }, ProduceSpeed);
@@ -103,6 +99,11 @@ window.addEventListener("resize", (e) => {
 //     console.log(mouse);
 // });
 
-
+if (window.innerWidth < 992) {
+    canvas.style.display = 'none';
+    clearInterval(circleProducer);
+} else {
+    canvas.style.display = 'block';
+}
 init();
 animate();
