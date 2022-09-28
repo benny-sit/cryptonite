@@ -64,9 +64,14 @@ function init() {
     }
 }
 
+var currentlyAnimating = true;
+var notAnim = setTimeout(() => currentlyAnimating = false, 1000);
 
 function animate() {
     requestAnimationFrame(animate);
+    currentlyAnimating = true;
+    clearTimeout(notAnim);
+    notAnim = setTimeout(() => currentlyAnimating = false, 1000);
     c.clearRect(0, 0, innerWidth, innerHeight);
     CircleArray.map(cir => cir.update());
     CircleArray = CircleArray.filter(cir => (cir.y + cir.r)< canvas.height);
@@ -74,7 +79,9 @@ function animate() {
 
 var ProduceSpeed = 400;
 var circleProducer = setInterval(() => {
-    addCircle(CircleArray);
+    if (currentlyAnimating) {
+        addCircle(CircleArray);
+    }
 }, ProduceSpeed);
 
 window.addEventListener("resize", (e) => {
