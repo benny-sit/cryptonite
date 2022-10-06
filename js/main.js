@@ -125,10 +125,8 @@ const coinObserver = new IntersectionObserver((entries) => {
 })
 
 const aboutObserver = new IntersectionObserver((entries) => {
-    console.log(entries);
     entries.forEach((entry) => {
         if(entry.isIntersecting) {
-            console.log('Intersection')
             Array.from(entry.target.children).forEach((child) => {
                 child.classList.toggle('transform-zero', true);
             })
@@ -205,7 +203,6 @@ function appendPage(pageNumber) {
         type: 'GET',
         success: (res) => {
             if (res.length) {
-                console.log(pageNum)
                 append_coins(res);
                 pageNum++;
                 pageObserver.observe(document.querySelector("#coins-grid > [class^='col']:last-child"));
@@ -381,7 +378,6 @@ $(() => {
         }
         search = allCoins.coins.filter(coin => coin.symbol.includes(e.target[0].value.toLowerCase()));
         let firstSearch = search.slice((pageNum-1)*100, pageNum * 100);
-        console.log(search)
         
         coinObserver.disconnect();
         pageObserver.disconnect();
@@ -430,7 +426,6 @@ $(() => {
     aboutObserver.observe($('.about-text-main').get(0))
 
     $('#pills-about .row').each((idx, elem) => {
-        console.log(elem.children[0].children[0]);
         aboutObserver.observe(elem.children[0]);
     })
 
