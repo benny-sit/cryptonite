@@ -50,19 +50,19 @@ body {
 }
 
 .top-text h1:first-child {
-  transition: transform 3s ease-out;
+  /* transition: transform 3s ease-out; */
   transform: translateX(0%);
-  animation: h1-first-anim 15s linear 3s infinite alternate forwards;
+  animation: h1-first-in-anim 3s ease-out alternate forwards ,h1-first-anim 15s linear 3s infinite alternate forwards;
 }
 .top-text h1:nth-child(2) {
   transform: translateX(0%);
-  transition: transform 3s ease-out 1s;
-  animation: h1-second-anim 15s linear 4s infinite alternate forwards;
+  /* transition: transform 3s ease-out 1s; */
+  animation: h1-second-in-anim 3s ease-out 1s alternate forwards, h1-second-anim 15s linear 4s infinite alternate forwards;
 }
 .top-text h1:last-child {
   transform: translateX(0%);
-  transition: transform 3s ease-out 2s;
-  animation: h1-third-anim 15s linear 5s infinite alternate forwards;
+  /* transition: transform 3s ease-out 2s; */
+  animation: h1-third-in-anim 3s ease-out 2s alternate forwards, h1-third-anim 15s linear 5s infinite alternate forwards;
 }
 
 .top-text h1:first-child::after {
@@ -108,6 +108,24 @@ body {
   transform: translateX(-70%);
   filter: blur(20px);
   z-index: -1;
+}
+
+@keyframes h1-first-in-anim {
+  100% {
+    transform: translateX(105%);
+  }
+}
+
+@keyframes h1-second-in-anim {
+  100% {
+    transform: translateX(125%);
+  }
+}
+
+@keyframes h1-third-in-anim {
+  100% {
+    transform: translateX(145%);
+  }
 }
 
 @keyframes h1-first-anim {

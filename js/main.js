@@ -363,9 +363,9 @@ function appendSearchCoins() {
 
 
 $(() => {
-    $('.top-text h1').first().css('transform', 'translateX(105%)');
-    $('.top-text h1:eq(1)').css('transform', 'translateX(125%)');
-    $('.top-text h1').last().css('transform', 'translateX(145%)');
+    // $('.top-text h1').first().css('transform', 'translateX(105%)');
+    // $('.top-text h1:eq(1)').css('transform', 'translateX(125%)');
+    // $('.top-text h1').last().css('transform', 'translateX(145%)');
 
     // Search function
     $('#search-form').submit((e) => {
